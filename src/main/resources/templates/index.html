@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"><head>
+    <link href="../static/semantic.min.css" rel="stylesheet" type="text/css">
+    <script src="../static/jquery-3.1.1.min.js"></script>
+    <script src="../static/semantic.min.js"></script>
+
+    <meta charset="utf-8">
+    <title>智能问答系统</title>
+    <style type="text/css">
+        * {
+            font-size: 14px;
+            padding: 0;
+            margin: 0;
+        }
+        .main {
+            /*position: relative;*/
+            margin-left: 40px;
+            margin-right: 40px;
+            padding: 0;
+            /*border: 1px solid steelblue;*/
+            /*width: 430px;*/
+            /*height: 400px;*/
+        }
+
+        .chatting {
+            list-style: none;
+            background: white;
+            height: 400px;
+            /*margin: 5px auto;*/
+            /*border: 1px dotted #D1D3D6;*/
+            overflow-y: scroll;
+        }
+
+        .msgInput {
+            display: block;
+            width: 100%;
+            height: 80px;
+            /*margin: 10px auto;*/
+        }
+
+        .sendbtn {
+            /*position: absolute;*/
+            float: right;
+            width: 100px;
+            height: 30px;
+            bottom: 5px;
+            right: 10px;
+        }
+
+        .msgContent {
+            width: auto;
+            max-width: 480px;
+            height: auto;
+            word-break: break-all;
+            margin: 5px;
+            padding: 7px;
+            border-radius: 5px;
+        }
+
+        .chatting .left {
+            float: left;
+            text-align: left;
+            background-color: rgb(84,144,120);
+            /*#f2f4f5*/
+        }
+
+        .chatting .right {
+            float: right;
+            text-align: right;
+            background-color: rgb(208,166,76);
+        }
+
+        textarea {
+            box-sizing: border-box;
+            margin: 0em;
+            font: 400 13.3333px Arial;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(169, 169, 169);
+            border-image: initial;
+            padding: 2px 0px 0px 2px;
+        }
+        html, body {
+            font-size: 14px;
+            font-family: "微软雅黑", Helvetica, Tahoma, Arial, sans-serif;
+            color: #000;
+            background-color: rgb(242,242,242);;
+            margin: 0;
+            padding: 0;
+        }
+        .main_left {
+            float: left;
+            width: 60%;
+            border: 1px solid gray;
+        }
+
+        .main_right {
+            float: right;
+            width: 40%;
+            height: 520px;
+            /*border: 1px solid black;*/
+        }
+        .column{
+            height: 50%;
+        }
+        .ui.attached.segment {
+            height: 213px;
+        }
+        .image img{
+            max-height:75px;
+            max-width: 75px;
+            vertical-align:middle;
+        }
+        .ui.fluid.card {
+            width: 58%;
+        }
+        .content{
+            max-height: 15px;
+        }
+        .ui.card>.content>.header:not(.ui) {
+            font-weight: 700;
+            font-size: 1.28571429em;
+            margin-top: -.21425em;
+            line-height: 0.285714em;
+            text-align: center;
+        }
+        .ui.segment {
+            padding: 5px 14px;
+        }
+        .ui.grid>.column:not(.row) {
+            padding-top: 5px;
+        }
+        .ui.card>.content, .ui.cards>.card>.content {
+            padding: 10px 0em;
+        }
+        .ui.grid {
+            margin-top: 0;
+            height: 210px;
+            margin-bottom: 0;
+        }
+        body ::-webkit-scrollbar {
+            -webkit-appearance: none;
+            width: 0px;
+            height: 10px;
+        }
+        .ui.header:first-child {
+            margin-top: 0px;
+        }
+        .ui.button {
+            background: rgb(255, 255, 255) none;
+        }
+        .msgContent img{
+            max-height: 240px;
+        }
+</style>
+    <script type="text/javascript">
+        window.onload = function () {
+            var input = document.getElementById('msg_input');//查找缓存
+            document.getElementById('sendbtn').onclick = function () {//敲下按键或enter键会发送数据
+                sendMsg();
+            }
+
+            //enter键 发送
+            document.onkeypress = function (event) {
+                var e = event || window.event;
+                var keycode = e.keyCode || e.which;
+                console.log(e)
+                if (keycode == 13) {//按下enter键
+                    sendMsg()
+                }
+            }
+
+            function sendMsg() {
+                var input = document.getElementById('msg_input');//查找缓存
+                var ul = document.getElementById('chatting');
+
+                var newLi = document.createElement('li');
+                newLi.innerHTML = input.value;
+                newLi.className = 'msgContent right';
+                ul.appendChild(newLi);
+
+                var div = document.createElement('div');
+                div.style = 'clear:both';
+                ul.appendChild(div);
+
+                ajax({
+                    url: '/app/query?question=' + input.value,
+                    success: function (res) {
+                        console.log(res);
+                        if (res.indexOf("http")!=-1) {
+                            var newLi = document.createElement('li');
+                            var newimg = document.createElement('img');
+                            newimg.src = res;
+                            newLi.className = 'msgContent left';
+                            newLi.appendChild(newimg);
+                            ul.appendChild(newLi);
+                        }else{
+                            var newLi = document.createElement('li');
+                            newLi.innerHTML = res;
+                            newLi.className = 'msgContent left';
+                            ul.appendChild(newLi);
+                        }
+                        var div = document.createElement('div');
+                        div.style = 'clear:both';
+                        ul.appendChild(div);
+                        input.value = '';
+                        newLi.scrollIntoView();//将元素滚动到可见位置
+                    }
+                })
+                input.value = '';
+                newLi.scrollIntoView();//将元素滚动到可见位置
+            }
+        }
+        function ajax(obj) {
+            var xhr = null;
+            if (window.ActiveXObject) {
+                xhr = new ActiveXObject('Microsoft.XMLHTTP')
+            } else {
+                //创建xmlhttprequest对象
+                xhr = new XMLHttpRequest();
+            }
+            //打开与服务器的连接
+            if (obj.method) {
+                xhr.open(obj.method, obj.url, true);
+            } else {
+                xhr.open('get', obj.url, true);
+            }
+            //若需要像html表单那样post数据，需要setrequestheader来添加http头
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Authorization", "APPCODE 3e9dfb924f464e9593a95f9d2bbf4348")
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    //数据接收完毕
+                    if (xhr.status == 200) {
+                        //console.log('请求成功',xhr.responseText)
+                        if (obj.success) {
+                            obj.success(xhr.responseText)
+                        }
+                    } else {
+                        //console.log(xhr.status,'请求出错')
+                        if (obj.failure) {
+                            obj.failure('请求失败')
+                        }
+                    }
+                }
+            }
+            if (obj.method == undefined || obj.method.toLowerCase() == 'get') {
+                xhr.send(null);
+            } else {
+                xhr.send(obj.params);
+
+            }
+        }
+        function getHotSearch(input){//热点关注数据显示
+            // var conn = new ActiveXObject("ADODB.Connection");
+            // var rs = new ActiveXObject("ADODB.Recordset");
+            // try {
+            //     var connectionString = "Driver={MySQL ODBC 8.0 Driver};OPTION=3;SERVER=127.0.0.1;User ID=root;Password=123456;Database=mysql;Port=3306";
+            //     conn.open(connectionString);
+            //     var sql = "select * from tea_tui";
+            //     rs.open(sql,conn);
+            //     while(!rs.eof){
+            //         WScript.Echo(rs.field("id")+"\t"+rs.field("name")+"\n");
+            //         rs.moveNext();
+            //     }
+            //     rs.close();
+            //     conn.close();
+            // }catch (e) {
+            //     WScript.Echo(e.message);
+            // }finally {
+            //
+            // }
+            var ul = document.getElementById('chatting');
+            ajax({
+                url: '/app/query?question=' + input.innerHTML,
+                success: function (res) {
+                    console.log(res);
+                    if (res.indexOf("http")!=-1) {
+                        var newLi = document.createElement('li');
+                        var newimg = document.createElement('img');
+                        newimg.src = res;
+                        newLi.className = 'msgContent left';
+                        newLi.appendChild(newimg);
+                        ul.appendChild(newLi);
+                    }else{
+                        var newLi = document.createElement('li');
+                        newLi.innerHTML = res;
+                        newLi.className = 'msgContent left';
+                        ul.appendChild(newLi);
+                    }
+                    var div = document.createElement('div');
+                    div.style = 'clear:both';
+                    ul.appendChild(div);
+                    // input.innerHTML = '';
+                    newLi.scrollIntoView();//将元素滚动到可见位置
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<div id="main" class="main">
+    <header style="height: 81px;border: 1px solid gray;background-color: white;">
+        <img src="../static/header_logo.png">
+        <!--<h2 style="font-size: 25px;margin: 10px auto">教师信息智能问答</h2>-->
+    </header>
+    <div class="main_left">
+        <div class="chat" style="height: 400px;">
+            <ul class="chatting" id="chatting">
+                <li class="msgContent left">你好，我是机器人小鱼，你有什么电影方面的问题可以问我哦</li>
+                <div style="clear: both"></div>
+            </ul>
+        </div>
+
+        <div class="conversion" style="height: 117px;">
+            <!--<textarea id="msg_input" class="msgInput" placeholder="打字很累哦，尝试输入词语可获得提示喔~" autocomplete="off" onkeyup="openFlag();" onblur="keyworkBlur();" onkeydown="closeFlag();"></textarea>-->
+            <textarea id="msg_input" class="msgInput" placeholder="打字很累哦，尝试输入词语可获得提示喔~"></textarea>
+            <button id="sendbtn" class="fluid ui button">发送</button>
+        </div>
+    </div>
+    <div class="main_right">
+        <h3 class="ui top attached header">老师推荐</h3>
+        <div class="ui attached segment">
+            <div class="ui three column grid" >
+                <div class="column" th:each="tea:${teas}">
+                    <div class="ui fluid card">
+                        <div class="image">
+                            <!--<img src="../images/陆丽丽.png">-->
+                            <!--<img src="https://tutors.eol.cn/app/upload/image/36/7e0e5fc8ebc0ab2b998ed3c0026a0914_thumb.jpg" th:text="${tea.touxiang}">-->
+                            <img th:src="${tea.touxiang}">
+                        </div>
+                        <div class="content">
+                            <a class="header" th:href="${tea.tea_lianjie}" th:text="${tea.name}">陈涛0</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <h3 class="ui attached header">热门搜索</h3>
+            <div class="ui attached segment">
+                <div class="ui relaxed divided list">
+                    <div class="item" th:each="question:${questions}">
+                        <i class="large middle aligned icon"></i>
+                            <div class="content">
+                                <a class="header" th:text="${question.question}" onclick="getHotSearch(this)"></a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+</body>
+</html>
