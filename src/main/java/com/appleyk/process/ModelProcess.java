@@ -4,9 +4,8 @@ import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.mllib.classification.NaiveBayes;
 import org.apache.spark.mllib.classification.NaiveBayesModel;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
@@ -54,8 +53,8 @@ public class ModelProcess {
     int modelIndex = 0;
 
     public ModelProcess() throws Exception {
-        questionsPattern = loadQuestionsPattern();
-        vocabulary = loadVocabulary();
+//        questionsPattern = loadQuestionsPattern();
+//        vocabulary = loadVocabulary();
         nbModel = loadClassifierModel();
     }
 
@@ -252,150 +251,154 @@ public class ModelProcess {
          * 训练集生成
          * labeled point 是一个局部向量，要么是密集型的要么是稀疏型的
          * 用一个label/response进行关联。在MLlib里，labeled points 被用来监督学习算法
-         * 我们使用一个double数来存储一个label，因此我们能够使用labeled points进行回归和分类
+         * 我们使用一个double数组来存储一个label，因此我们能够使用labeled points进行回归和分类
          */
         SparkConf conf = new SparkConf().setAppName("NaiveBayesTest").setMaster("local[*]");
         JavaSparkContext sc = new JavaSparkContext(conf);
         List<LabeledPoint> train_list = new LinkedList<LabeledPoint>();
         String[] sentences = null;
-
-        String scoreQuestions = loadFile("question/【0】基本信息.txt");
-        sentences = scoreQuestions.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(0.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-
-        String timeQuestions = loadFile("question/【1】学院.txt");
-        sentences = timeQuestions.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(1.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-
-        String styleQuestions = loadFile("question/【2】网页.txt");
-        sentences = styleQuestions.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(2.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        /**
-         * 论文属于哪个学科
-         */
-        String withMovies = loadFile("question/【3】头像.txt");
-        sentences = withMovies.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(3.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-
-        /**
-         * 论文发表在什么报刊
-         */
-        String countMovies = loadFile("question/【4】研究方向.txt");
-        sentences = countMovies.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(4.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        /**
-         * 作者发布了哪些论文
-         */
-        String count = loadFile("question/【5】职称.txt");
-        sentences = count.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(5.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String countfirst = loadFile("question/【6】职位.txt");
-        sentences = countfirst.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(6.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String countsecond = loadFile("question/【7】邮箱.txt");
-        sentences = countsecond.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(7.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String countthird = loadFile("question/【8】固定电话.txt");
-        sentences = countthird.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(8.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String countfourth = loadFile("question/【9】简介.txt");
-        sentences = countfourth.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(9.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String countjournal = loadFile("question/【10】学院的老师.txt");
-        sentences = countjournal.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(10.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String whichsub = loadFile("question/【11】职称的老师.txt");
-        sentences = whichsub.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(11.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String whoyj = loadFile("question/【12】研究方向的老师.txt");
-        sentences = whoyj.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(12.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String xyis = loadFile("question/【13】老师是否同学院.txt");
-        sentences = xyis.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(13.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String zcis = loadFile("question/【14】老师是否同职称.txt");
-        sentences = zcis.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(14.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        String yjis = loadFile("question/【15】老师是否同研究方向.txt");
-        sentences = yjis.split("`");
-        for (String sentence : sentences) {
-            double[] array = sentenceToArrays(sentence);
-            LabeledPoint train_one = new LabeledPoint(15.0, Vectors.dense(array));
-            train_list.add(train_one);
-        }
-        /**
-         * SPARK的核心是RDD(弹性分布式数据集)
-         * Spark是Scala写的,JavaRDD就是Spark为Java写的一套API
-         * JavaSparkContext sc = new JavaSparkContext(sparkConf);    //对应JavaRDD
-         * SparkContext	    sc = new SparkContext(sparkConf)    ;    //对应RDD
-         */
-//        System.out.println(train_list.size());
-        JavaRDD<LabeledPoint> trainingRDD = sc.parallelize(train_list);//切分partition
-        NaiveBayesModel nb_model = NaiveBayes.train(trainingRDD.rdd());
-
+//        训练模型的才需要执行的代码
+//        String scoreQuestions = loadFile("question/【0】基本信息.txt");
+//        sentences = scoreQuestions.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(0.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//
+//        String timeQuestions = loadFile("question/【1】学院.txt");
+//        sentences = timeQuestions.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(1.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//
+//        String styleQuestions = loadFile("question/【2】网页.txt");
+//        sentences = styleQuestions.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(2.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        /**
+//         * 论文属于哪个学科
+//         */
+//        String withMovies = loadFile("question/【3】头像.txt");
+//        sentences = withMovies.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(3.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//
+//        /**
+//         * 论文发表在什么报刊
+//         */
+//        String countMovies = loadFile("question/【4】研究方向.txt");
+//        sentences = countMovies.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(4.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        /**
+//         * 作者发布了哪些论文
+//         */
+//        String count = loadFile("question/【5】职称.txt");
+//        sentences = count.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(5.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String countfirst = loadFile("question/【6】职位.txt");
+//        sentences = countfirst.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(6.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String countsecond = loadFile("question/【7】邮箱.txt");
+//        sentences = countsecond.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(7.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String countthird = loadFile("question/【8】固定电话.txt");
+//        sentences = countthird.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(8.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String countfourth = loadFile("question/【9】简介.txt");
+//        sentences = countfourth.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(9.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String countjournal = loadFile("question/【10】学院的老师.txt");
+//        sentences = countjournal.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(10.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String whichsub = loadFile("question/【11】职称的老师.txt");
+//        sentences = whichsub.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(11.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String whoyj = loadFile("question/【12】研究方向的老师.txt");
+//        sentences = whoyj.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(12.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String xyis = loadFile("question/【13】老师是否同学院.txt");
+//        sentences = xyis.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(13.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String zcis = loadFile("question/【14】老师是否同职称.txt");
+//        sentences = zcis.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(14.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        String yjis = loadFile("question/【15】老师是否同研究方向.txt");
+//        sentences = yjis.split("`");
+//        for (String sentence : sentences) {
+//            double[] array = sentenceToArrays(sentence);
+//            LabeledPoint train_one = new LabeledPoint(15.0, Vectors.dense(array));
+//            train_list.add(train_one);
+//        }
+//        /**
+//         * SPARK的核心是RDD(弹性分布式数据集)
+//         * Spark是Scala写的,JavaRDD就是Spark为Java写的一套API
+//         * JavaSparkContext sc = new JavaSparkContext(sparkConf);    //对应JavaRDD
+//         * SparkContext	    sc = new SparkContext(sparkConf)    ;    //对应RDD
+//         */
+////        System.out.println(train_list.size());
+//        JavaRDD<LabeledPoint> trainingRDD = sc.parallelize(train_list);//切分partition
+//        NaiveBayesModel nb_model = NaiveBayes.train(trainingRDD.rdd());
+//
+        String output_dir = "myNaiveBayesModel";
+        SparkContext sc1 = JavaSparkContext.toSparkContext(sc);
+//        nb_model.save(sc1,output_dir);
         /**
          * 记得关闭资源
          */
+        NaiveBayesModel nb_model = NaiveBayesModel.load(sc1,output_dir);
         sc.close();
         /**
          * 返回贝叶斯分类器

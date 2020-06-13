@@ -1,16 +1,17 @@
 package com.appleyk.repository;
 
-import com.appleyk.node.Movie;
+import com.appleyk.node.Teacher;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+
 /**
  * 基于教师信息知识图谱的自问自答的查询接口
  */
-public interface QuestionRepository extends Neo4jRepository<Movie, Long> {
+public interface QuestionRepository extends Neo4jRepository<Teacher, Long> {
 
     /**
      * 0 对应模板0 =》tea 基本信息

@@ -21,6 +21,8 @@ public class QuestionServiceImpl implements QuestionService {
     @Resource
     private JdbcTemplate jdbctemplate;
 
+    private ModelProcess queryprocess = new ModelProcess("D:/pro/hanlp/");
+
 //    添加热门老师；ID name 头像 times 网页链接
 //    添加热门搜索：
     private boolean addTea(String name, String touxiang, String tea_lianjie){
@@ -28,6 +30,12 @@ public class QuestionServiceImpl implements QuestionService {
         int up = jdbctemplate.update(sql_update,name);
         if (up==0){//更改的行数为0
             String sql_insert = "INSERT INTO tea_tui (name,touxiang,times,tea_lianjie) VALUES(?,?,?,?);";
+            if (touxiang == null)
+                touxiang = "https://tutors.eol.cn/app/static/img/pc/people.jpg";
+            else if (touxiang.equals("null"))
+                touxiang = "https://tutors.eol.cn/app/static/img/pc/people.jpg";
+            if (tea_lianjie == null)
+                tea_lianjie = "null";
             return jdbctemplate.update(sql_insert,name,touxiang,1,tea_lianjie)>0;
         }
         return true;
@@ -43,14 +51,12 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Autowired
-    public QuestionServiceImpl(QuestionRepository questionRepository) {
+    public QuestionServiceImpl(QuestionRepository questionRepository) throws Exception {
         this.questionRepository = questionRepository;
     }
 
     @Override
     public String answer(String question) throws Exception{
-        ModelProcess queryprocess = new ModelProcess("D:/pro/hanlp/");
-
         loadTeacherDict("D:/pro/hanlp/data/dictionary/custom/teachers.txt");
 
         ArrayList<String> reStrings = queryprocess.analyQuery(question);

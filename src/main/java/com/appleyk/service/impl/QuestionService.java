@@ -4,7 +4,5 @@ package com.appleyk.service.impl;/*
 */
 public interface QuestionService{
 
-//    void showDictPath();
-//
     String answer(String question) throws Exception;
 }
