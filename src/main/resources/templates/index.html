@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"><head>
     <link href="../static/semantic.min.css" rel="stylesheet" type="text/css">
     <script src="../static/jquery-3.1.1.min.js"></script>
     <script src="../static/semantic.min.js"></script>
@@ -38,14 +38,14 @@
             /*margin: 10px auto;*/
         }
 
-        .sendbtn {
-            /*position: absolute;*/
-            float: right;
-            width: 100px;
-            height: 30px;
-            bottom: 5px;
-            right: 10px;
-        }
+        /*.sendbtn {*/
+            /*!*position: absolute;*!*/
+            /*float: right;*/
+            /*width: 100px;*/
+            /*height: 30px;*/
+            /*bottom: 5px;*/
+            /*right: 10px;*/
+        /*}*/
 
         .msgContent {
             width: auto;
@@ -64,21 +64,21 @@
             /*#f2f4f5*/
         }
 
-        .chatting .right {
-            float: right;
-            text-align: right;
-            background-color: rgb(208,166,76);
-        }
+        /*.chatting .right {*/
+            /*float: right;*/
+            /*text-align: right;*/
+            /*background-color: rgb(208,166,76);*/
+        /*}*/
 
         textarea {
             box-sizing: border-box;
-            margin: 0em;
+            margin: 0;
             font: 400 13.3333px Arial;
             border-width: 1px;
             border-style: solid;
             border-color: rgb(169, 169, 169);
             border-image: initial;
-            padding: 2px 0px 0px 2px;
+            padding: 2px 0 0 2px;
         }
         html, body {
             font-size: 14px;
@@ -131,7 +131,7 @@
             padding-top: 5px;
         }
         .ui.card>.content, .ui.cards>.card>.content {
-            padding: 10px 0em;
+            padding: 10px 0;
         }
         .ui.grid {
             margin-top: 0;
@@ -140,11 +140,11 @@
         }
         body ::-webkit-scrollbar {
             -webkit-appearance: none;
-            width: 0px;
+            width: 0;
             height: 10px;
         }
         .ui.header:first-child {
-            margin-top: 0px;
+            margin-top: 0;
         }
         .ui.button {
             background: rgb(255, 255, 255) none;
@@ -155,7 +155,7 @@
 </style>
     <script type="text/javascript">
         window.onload = function () {
-            var input = document.getElementById('msg_input');//查找缓存
+            // var input = document.getElementById('msg_input');//查找缓存
             document.getElementById('sendbtn').onclick = function () {//敲下按键或enter键会发送数据
                 sendMsg();
             }
@@ -253,24 +253,6 @@
             }
         }
         function getHotSearch(input){//热点关注数据显示
-            // var conn = new ActiveXObject("ADODB.Connection");
-            // var rs = new ActiveXObject("ADODB.Recordset");
-            // try {
-            //     var connectionString = "Driver={MySQL ODBC 8.0 Driver};OPTION=3;SERVER=127.0.0.1;User ID=root;Password=123456;Database=mysql;Port=3306";
-            //     conn.open(connectionString);
-            //     var sql = "select * from tea_tui";
-            //     rs.open(sql,conn);
-            //     while(!rs.eof){
-            //         WScript.Echo(rs.field("id")+"\t"+rs.field("name")+"\n");
-            //         rs.moveNext();
-            //     }
-            //     rs.close();
-            //     conn.close();
-            // }catch (e) {
-            //     WScript.Echo(e.message);
-            // }finally {
-            //
-            // }
             var ul = document.getElementById('chatting');
             ajax({
                 url: '/app/query?question=' + input.innerHTML,
@@ -292,7 +274,6 @@
                     var div = document.createElement('div');
                     div.style = 'clear:both';
                     ul.appendChild(div);
-                    // input.innerHTML = '';
                     newLi.scrollIntoView();//将元素滚动到可见位置
                 }
             })
@@ -301,21 +282,22 @@
 </head>
 <body>
 <div id="main" class="main">
-    <header style="height: 81px;border: 1px solid gray;background-color: white;">
-        <img src="../static/header_logo.png">
+    <header style="height: 77px;border: 1px solid gray;background-color: white;">
+        <img src="../static/header_logo.png" style="height:75px">
         <!--<h2 style="font-size: 25px;margin: 10px auto">教师信息智能问答</h2>-->
     </header>
+
     <div class="main_left">
         <div class="chat" style="height: 400px;">
             <ul class="chatting" id="chatting">
-                <li class="msgContent left">你好，我是机器人小鱼，你有什么电影方面的问题可以问我哦</li>
+                <li class="msgContent left">你好，你有什么问题可以问我哦</li>
                 <div style="clear: both"></div>
             </ul>
         </div>
 
         <div class="conversion" style="height: 117px;">
             <!--<textarea id="msg_input" class="msgInput" placeholder="打字很累哦，尝试输入词语可获得提示喔~" autocomplete="off" onkeyup="openFlag();" onblur="keyworkBlur();" onkeydown="closeFlag();"></textarea>-->
-            <textarea id="msg_input" class="msgInput" placeholder="打字很累哦，尝试输入词语可获得提示喔~"></textarea>
+            <textarea id="msg_input" class="msgInput" placeholder="请输入问题~"></textarea>
             <button id="sendbtn" class="fluid ui button">发送</button>
         </div>
     </div>
