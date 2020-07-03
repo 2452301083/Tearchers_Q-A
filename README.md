@@ -20,6 +20,7 @@ Python 爬虫；Spring-Boot框架；Neo4j图数据库；hanlp分词；贝叶斯�
 ### 获取数据
 Python 程序爬取教师信息保存为txt文件，数据条目有：教师姓名、邮箱、电话、头像、网页链接、职位、职称、个人简介、所在学院、研究方向。
 通过不断解析页面，分离网页信息得到教师信息，爬取数据的代码如下：
+
         for url in urls:
         response = requests.get(url,headers=headers).content.decode("utf-8")
         soup = BeautifulSoup(response,'lxml').find_all('div',{'class':'right-daoshi-info'})
@@ -41,6 +42,7 @@ Python 程序爬取教师信息保存为txt文件，数据条目有：教师姓�
                     introduction = 'null'
         else:
             introduction = 'null'
+
 ### 创建Neo4j数据库
 #### 创建节点、关系的csv文件
 ![images](https://github.com/2452301083/Tearchers_Q-A/blob/master/images/%E5%9B%BE%E7%89%8710.png)
