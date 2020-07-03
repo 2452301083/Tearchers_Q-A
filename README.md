@@ -20,27 +20,27 @@ Python 爬虫；Spring-Boot框架；Neo4j图数据库；hanlp分词；贝叶斯�
 ### 获取数据
 Python 程序爬取教师信息保存为txt文件，数据条目有：教师姓名、邮箱、电话、头像、网页链接、职位、职称、个人简介、所在学院、研究方向。
 通过不断解析页面，分离网页信息得到教师信息，爬取数据的代码如下：
-    for url in urls:
-    response = requests.get(url,headers=headers).content.decode("utf-8")
-    soup = BeautifulSoup(response,'lxml').find_all('div',{'class':'right-daoshi-info'})
-    name = isnull(soup[0].find_all('p')[0].find('span').get_text())
-    get_img(name,soup)
-    title = isnull(soup[0].find_all('p')[2].find('span').get_text())
-    ZZDH =  isnull(soup[0].find_all('p')[5].find('span').get_text())
-    research_field = isnull(soup[0].find_all('p')[4].find('span').get_text())
-    postion = isnull(soup[0].find_all('p')[len(soup[0].find_all('p'))-1].find('span').get_text())
-    email = isnull(soup[0].find_all('p')[3].find('span').get_text())
-    introduction = ''
-    if soup[len(soup)-1].find_all('div',{'class':'zs-major'}):
-        ps = soup[len(soup)-1].find_all('div',{'class':'zs-major'})[0].find_all('p')
-        for p in ps:
-            if p.find('em'):
-                introduction = introduction+p.find('em').get_text().strip()+p.find('span').get_text().strip()
-            # get_img(name,soup)
-            else:
-                introduction = 'null'
-    else:
-        introduction = 'null'
+        for url in urls:
+        response = requests.get(url,headers=headers).content.decode("utf-8")
+        soup = BeautifulSoup(response,'lxml').find_all('div',{'class':'right-daoshi-info'})
+        name = isnull(soup[0].find_all('p')[0].find('span').get_text())
+        get_img(name,soup)
+        title = isnull(soup[0].find_all('p')[2].find('span').get_text())
+        ZZDH =  isnull(soup[0].find_all('p')[5].find('span').get_text())
+        research_field = isnull(soup[0].find_all('p')[4].find('span').get_text())
+        postion = isnull(soup[0].find_all('p')[len(soup[0].find_all('p'))-1].find('span').get_text())
+        email = isnull(soup[0].find_all('p')[3].find('span').get_text())
+        introduction = ''
+        if soup[len(soup)-1].find_all('div',{'class':'zs-major'}):
+            ps = soup[len(soup)-1].find_all('div',{'class':'zs-major'})[0].find_all('p')
+            for p in ps:
+                if p.find('em'):
+                    introduction = introduction+p.find('em').get_text().strip()+p.find('span').get_text().strip()
+                # get_img(name,soup)
+                else:
+                    introduction = 'null'
+        else:
+            introduction = 'null'
 ### 创建Neo4j数据库
 #### 创建节点、关系的csv文件
 ![images](https://github.com/2452301083/Tearchers_Q-A/blob/master/images/%E5%9B%BE%E7%89%8710.png)
@@ -58,6 +58,7 @@ Python 程序爬取教师信息保存为txt文件，数据条目有：教师姓�
 #### 问句分类
 ### Neo4j查询
    Neo4jRepository是由Spring-Data-Neo4j提供的接口，可以使用@Query注释使用Cypher图形查询语言从Neo4j中检索数据。
+   
     public interface QuestionRepository extends Neo4jRepository<Teacher, Long> {
         /**
          * 0 对应模板0 =》tea 基本信息
